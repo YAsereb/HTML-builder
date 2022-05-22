@@ -19,7 +19,8 @@ process.on('beforeExit', () => {
       let string = data.toString();
       string = string.slice(0, string.length - 2);
       if (string === 'exit') {
-        process.exit(() => console.log('Goodbye'));
+        console.log('Goodbye');
+        process.exit(1);
       }
       fs.appendFile(txtPath, data, (err) => {
         if (err) return console.log(err);
