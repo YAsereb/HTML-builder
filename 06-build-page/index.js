@@ -1,6 +1,5 @@
 const path = require('path');
 const fs = require('fs');
-const { dirname } = require('path');
 
 const projectFolderPath = path.join(__dirname, 'project-dist');
 const templateFilePAth = path.join(__dirname, 'template.html');
