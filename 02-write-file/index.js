@@ -16,9 +16,11 @@ process.on('beforeExit', () => {
     if (error) createTxtFile();
     stdout.write('Здравствуйте, введите текст\n');
     stdin.on('data', (data) => {
+
       let string = data.toString();
-      string = string.slice(0, string.length - 2);
-      if (string === 'exit') {
+      string = string.trim();
+
+      if (string === 'exit' || string === 'exit\n') {
         console.log('Goodbye');
         process.exit(1);
       }
@@ -33,5 +35,3 @@ process.on('SIGINT', () => {
   console.log('Goodbye');
   process.exit(1);
 });
-
-

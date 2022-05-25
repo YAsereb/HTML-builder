@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const { dirname } = require('path');
 
 const projectFolderPath = path.join(__dirname, 'project-dist');
 const templateFilePAth = path.join(__dirname, 'template.html');
@@ -21,38 +22,35 @@ fs.mkdir(path.join(projectFolderPath), { recursive: true }, (error) => {
 
 // copy template.html to index.html in project-dist folder
 
-fs.copyFile(templateFilePAth, indexHTMLPath, (err) => {
+const getComponent = async (src) => {
+  let component = await fs.promises.readFile(src, 'utf-8');
+  return component;
+};
 
-  if (err) console.error(err);
+const getIndexData = async (arr, str, src) => {
+  for (let file of arr) {
+    if (file.isFile()) {
+      let component = await getComponent(path.join(src, file.name));
+      let change = `{{${path.parse(file.name).name}}}`;
+      str = str.replace(change, component);
+    }
+  } return str;
 
-  fs.readFile(indexHTMLPath, 'utf-8', (err, data) => {
+};
 
-    if (err) console.error(err);
+const createIndexHTML = async () => {
 
-    fs.readdir(componentsFolderPath, { withFileTypes: true }, (err, files) => {
+  let templateData = await getComponent(templateFilePAth);
 
-      if (err) console.error(err.message);
-      files.forEach((file) => {
+  let files = await fs.promises.readdir(componentsFolderPath, { encoding: 'utf-8', withFileTypes: true });
 
-        if (file.isFile() && path.extname(file.name) === '.html') {
+  let indexData = await getIndexData(files, templateData, componentsFolderPath);
 
-          let filePath = path.join(componentsFolderPath, file.name);
-          let change = `{{${path.parse(file.name).name}}}`;
+  await fs.promises.writeFile(indexHTMLPath, indexData, 'utf-8');
 
-          fs.readFile(filePath, 'utf-8', (err, dataFile) => {
-            if (err) console.error(err);
-            data = data.replace(change, dataFile);
+};
 
-            fs.writeFile(indexHTMLPath, data, 'utf-8', (err) => {
-              if (err) console.error(err);
-            });
-          });
-        }
-      });
-    });
-
-  });
-});
+createIndexHTML();
 
 // create styles.css in project-dist folder
 
